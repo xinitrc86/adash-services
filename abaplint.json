@@ -1,0 +1,239 @@
+{
+  "global": {
+      "files": "/src/**/*.*",
+      "skipGeneratedGatewayClasses": true,
+      "skipGeneratedPersistentClasses": true,
+      "skipGeneratedFunctionGroups": true
+  },
+  "syntax": {
+      "version": "v753",
+      "errorNamespace": "",
+      "globalConstants": [],
+      "globalMacros": []
+  },
+  "dependencies": [
+      {
+          "url": "https://github.com/abaplint/deps",
+          "folder": "/deps",
+          "files": "/src/**/*.*"
+      }
+  ],
+  "rules": {
+      "7bit_ascii": true,
+      "avoid_use": {
+          "define": true,
+          "endselect": true,
+          "execSQL": true,
+          "kernelCall": true,
+          "communication": true,
+          "statics": true,
+          "systemCall": true,
+          "break": true,
+          "defaultKey": true
+      },
+      "check_syntax": false,
+      "cloud_types": true,
+      "colon_missing_space": true,
+      "commented_code": true,
+      "constructor_visibility_public": {
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#if-your-global-class-is-create-private-leave-the-constructor-public"
+      },
+      "contains_tab": true,
+      "definitions_top": true,
+      "description_empty": true,
+      "double_space": {
+          "keywords": true,
+          "startParen": true,
+          "endParen": true,
+          "afterColon": true
+      },
+      "empty_line_in_statement": {
+          "allowChained": false
+      },
+      "empty_statement": true,
+      "empty_structure": {
+          "loop": true,
+          "if": true,
+          "while": true,
+          "case": true,
+          "select": true,
+          "do": true,
+          "at": true
+      },
+      "exit_or_check": true,
+      "exporting": {
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#omit-the-optional-keyword-exporting"
+      },
+      "functional_writing": {
+          "ignoreExceptions": true
+      },
+      "global_class": true,
+      "identical_form_names": true,
+      "if_in_if": {
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+      },
+      "in_statement_indentation": {
+          "ignoreExceptions": true
+      },
+      "indentation": {
+          "ignoreExceptions": true,
+          "alignTryCatch": false,
+          "globalClassSkipFirst": false,
+          "ignoreGlobalClassDefinition": false,
+          "ignoreGlobalInterface": false
+      },
+      "inline_data_old_versions": true,
+      "keyword_case": {
+          "style": "lower",
+          "ignoreExceptions": true,
+          "ignoreLowerClassImplmentationStatement": true,
+          "ignoreGlobalClassDefinition": false,
+          "ignoreGlobalInterface": false,
+          "ignoreFunctionModuleName": false
+      },
+      "line_length": {
+          "length": 120,
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#stick-to-a-reasonable-line-length"
+      },
+      "local_class_naming": {
+          "local": "^LCL_.*$",
+          "test": "^(LTC|LCL)_.*$",
+          "exception": "^LCX_.*$"
+      },
+      "max_one_statement": {
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#no-more-than-one-statement-per-line"
+      },
+      "message_exists": true,
+      "method_length": {
+          "statements": 100,
+          "ignoreTestClasses": true,
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-methods-small",
+          "errorWhenEmpty": true
+      },
+      "mix_returning": {
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#use-either-returning-or-exporting-or-changing-but-not-a-combination"
+      },
+      "msag_consistency": true,
+      "nesting": {
+          "depth": 5,
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+      },
+      "no_public_attributes": {
+          "allowReadOnly": true,
+          "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#use-read-only-sparingly"
+      },
+      "object_naming": {
+          "clas": "^ZC(L|X)\\_",
+          "intf": "^ZIF\\_",
+          "prog": "^Z",
+          "fugr": "^Z",
+          "tabl": "^Z",
+          "ttyp": "^Z",
+          "dtel": "^Z",
+          "doma": "^Z",
+          "msag": "^Z",
+          "tran": "^Z",
+          "enqu": "^EZ",
+          "auth": "^Z",
+          "pinf": "^Z",
+          "idoc": "^Z",
+          "xslt": "^Z"
+      },
+      "obsolete_statement": {
+          "refresh": true,
+          "compute": true,
+          "add": true,
+          "subtract": true,
+          "multiply": true,
+          "move": true,
+          "divide": true,
+          "requested": true,
+          "occurs": true
+      },
+      "parser_error": true,
+      "preferred_compare_operator": {
+          "badOperators": [
+              "EQ",
+              "><",
+              "NE",
+              "GE",
+              "GT",
+              "LT",
+              "LE"
+          ]
+      },
+      "remove_descriptions": {
+          "ignoreExceptions": false
+      },
+      "sequential_blank": {
+          "lines": 4
+      },
+      "short_case": {
+          "length": 1,
+          "allow": []
+      },
+      "space_before_colon": true,
+      "space_before_dot": {
+          "ignoreGlobalDefinition": true,
+          "ignoreExceptions": true
+      },
+      "start_at_tab": true,      
+      "tabl_enhancement_category": false,
+      "unreachable_code": true,
+      "use_new": true,
+      "when_others_last": true,
+      "whitespace_end": true,
+      "ambiguous_statement": true,
+      "allowed_object_types": {
+          "allowed": [
+              "PROG",
+              "CLAS",
+              "INTF",
+              "DEVC",
+              "TABL",
+              "DDLS",
+              "DTEL",
+              "DOMA"
+
+          ]
+      },
+      "begin_end_names": true,
+      "check_transformation_exists": true,
+      "form_tables_obsolete": true,
+      "implement_methods": false,
+      "local_testclass_location": false,
+      "main_file_contents": true,
+      "type_form_parameters": true,
+      "rfc_error_handling": true,
+      "abapdoc": true,
+      "form_no_dash": true,
+      "release_idoc": true,
+      "prefer_returning_to_exporting": true,
+      "keep_single_parameter_on_one_line": {
+          "length": 120
+      },
+      "allowed_object_naming": true,
+      "chain_mainly_declarations": true,
+      "fully_type_constants": true,
+      "check_abstract": true,
+      "check_comments": {
+          "allowEndOfLine": true
+      },
+      "selection_screen_naming": {
+          "selectOption": "^s_.+$",
+          "parameter": "^p_.+$",
+          "patternKind": "required"
+      },
+      "check_text_elements": true,
+      "check_ddic": false,
+      "newline_between_methods": {
+          "logic": "less",
+          "count": 3
+      },
+      "check_include": false,
+      "xml_consistency": true,
+      "prefix_is_current_class": {
+          "omitMeInstanceCalls": true
+      }
+  }
+}

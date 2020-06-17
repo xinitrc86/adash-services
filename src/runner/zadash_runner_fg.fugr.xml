@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>fg</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZADASH_RUNNER_FGTOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZADASH_RUNNER_FG</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZDASH_BG_PACKAGE_RUNNER</FUNCNAME>
+     <REMOTE_CALL>R</REMOTE_CALL>
+     <SHORT_TEXT>Background runner for recently added packages</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>PACKAGE</PARAMETER>
+       <TYP>DEVCLASS</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>WITH_COVERAGE</PARAMETER>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>XFLAG</TYP>
+      </RSIMP>
+      <RSIMP>
+       <PARAMETER>BREAK</PARAMETER>
+       <OPTIONAL>X</OPTIONAL>
+       <TYP>XFLAG</TYP>
+      </RSIMP>
+     </IMPORT>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>PACKAGE</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>WITH_COVERAGE</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>BREAK</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

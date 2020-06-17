@@ -1,0 +1,4 @@
+node_modules/
+package-lock.json
+/src/front_end
+.vscode
