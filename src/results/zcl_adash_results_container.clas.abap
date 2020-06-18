@@ -49,6 +49,8 @@ class zcl_adash_results_container implementation.
 
   method zif_adash_results_container~add_test_summary.
 
+
+    "starting to downport maybe? What is available at 740sp05?
     data entry_computed type ztbc_au_results.
     data delta_summary type zsbc_test_summary.
     data was type  ztbc_au_results.
@@ -79,10 +81,13 @@ class zcl_adash_results_container implementation.
 
   method zif_adash_results_container~add_coverage_summary.
 
-    "@TODO test this small line,
-    "if for some reason the coverage is zero, (no coverage run) the delta is negative
-    "we want to at least keep what we have!
-    check coverage_summary-statements_count <> 0.
+    "as opposed to tests, we allow previous values
+    "to exist, not taking zeros as new.
+    "this is to prevent no coverage runs to erase
+    "coverage results, simply not calling this method do the trick too though...
+    check coverage_summary-statements_count <> 0
+    and ( coverage_summary-statements_covered <> 0
+    or coverage_summary-statements_uncovered <> 0 ).
 
 
     select single * from ztbc_au_results
@@ -98,7 +103,7 @@ class zcl_adash_results_container implementation.
     delta_summary-statements_uncovered = coverage_summary-statements_uncovered - was-statements_uncovered.
 
     data(entry_computed) = compute_summary(
-        coverage_delta = coverage_summary ).
+        coverage_delta = delta_summary ).
 
     add_summary_to_parent_pkg(
           coverage_delta = delta_summary
