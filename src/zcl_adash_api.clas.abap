@@ -22,12 +22,39 @@ class zcl_adash_api definition
 
   protected section.
   private section.
+    CONSTANTS TYPE_PACKAGE TYPE string VALUE 'DEVC' ##NO_TEXT.
     methods getsetup
       importing
                 i_type            type trobjtype
                 i_component       type sobj_name
                 i_with_coverage   type any optional
       returning value(r_newsetup) type ztbc_adash_setup.
+    methods filter_parents_n_sub_subnodes
+      importing
+        i_setup    type ztbc_adash_setup
+      changing
+        c_response type zsbc_adash_api_test_response.
+    methods list_my_level_only
+      importing
+        i_setup    type ztbc_adash_setup
+      changing
+        c_response type zsbc_adash_api_test_response.
+    methods delete_objects_from_subnodes
+      importing
+        setup    type ztbc_adash_setup
+      changing
+        response type zsbc_adash_api_test_response.
+    methods list_packages_first
+      changing
+        response type zsbc_adash_api_test_response.
+    methods prepare_package_response
+      importing
+        setup    type ztbc_adash_setup
+      changing
+        response type zsbc_adash_api_test_response.
+    methods set_status
+      changing
+        response type zsbc_adash_api_test_response.
 endclass.
 
 
@@ -76,20 +103,30 @@ class zcl_adash_api implementation.
        with_coverage = setup-with_coverage
     ).
 
+
     data(results) = runner->run_and_return_results( ).
+
+
     response-tests = results->get_adash_test_method_results(  ).
     response-sumaries = results->get_adash_results_summary(  ).
-    response-status = cond #(
-        when value #( response-tests[ status = -1 ] optional )
-        is initial
-        then 1
-        else -1
-    ).
+    set_status(
+          changing
+            response = response ).
 
 
     data(persistence_layer) = cast zif_adash_results_db_layer( new zcl_adash_results_db_layer(  ) ).
     persistence_layer->persist(
         results_container = results ).
+
+    if setup-type = TYPE_PACKAGE.
+        prepare_package_response(
+              exporting
+                setup = setup
+              changing
+                response = response ).
+    endif.
+
+
 
   endmethod.
 
@@ -103,7 +140,7 @@ class zcl_adash_api implementation.
 
     modify ztbc_adash_setup from setup.
 
-    if setup-type = 'DEVC'.
+    if setup-type = TYPE_PACKAGE.
       data(as_package) = conv devclass( setup-name ).
       call function 'ZDASH_BG_PACKAGE_RUNNER'
         starting new task 'ADASH_PACKAGE_FG'
@@ -132,6 +169,88 @@ class zcl_adash_api implementation.
        "playing safe
        max_duration_allowed = if_aunit_attribute_enums=>c_duration-short
        max_risk_level_allowed = if_aunit_attribute_enums=>c_risk_level-harmless
+    ).
+
+  endmethod.
+
+
+  method filter_parents_n_sub_subnodes.
+
+    delete c_response-sumaries
+       "parent packages
+        where ( type = 'DEVC '
+         and parent_package <> i_setup-name
+         and package_own <> i_setup-name  ).
+
+  endmethod.
+
+
+  method list_my_level_only.
+
+    filter_parents_n_sub_subnodes(
+          exporting
+            i_setup = i_setup
+          changing
+            c_response = c_response ).
+
+  endmethod.
+
+
+  method delete_objects_from_subnodes.
+
+    delete response-sumaries
+       where ( parent_package = setup-name
+               and type <> type_package
+          ).
+
+  endmethod.
+
+
+  method list_packages_first.
+
+    data(not_packages) = value zsbc_adash_result_summary_t(
+      for summary in response-sumaries
+          where ( type <> type_package )
+          ( summary )
+   ).
+
+    delete response-sumaries where type <> type_package.
+    sort response-sumaries by name ascending.
+    append lines of not_packages to response-sumaries.
+
+  endmethod.
+
+
+  method prepare_package_response.
+
+    list_my_level_only(
+          exporting
+            i_setup = setup
+          changing
+            c_response = response ).
+
+
+    delete_objects_from_subnodes(
+          exporting
+            setup = setup
+          changing
+            response = response ).
+
+    list_packages_first(
+          changing
+            response = response ).
+
+  endmethod.
+
+
+  method set_status.
+
+    response-status = cond #(
+        when response-tests is initial then 0 "neutral
+        when value #( response-tests[ status = -1 ] optional )
+        is initial
+        then 1 "passed
+        else -1 "failed
     ).
 
   endmethod.
