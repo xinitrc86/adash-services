@@ -31,13 +31,13 @@ class zcl_adash_component_runner implementation.
 
 
   method constructor.
+    "@TODO: I see this piece of code elsewhere too.
+    "Create a factory
     super->constructor(
         aunit_runner = cond #(
             when !aunit_runner is bound then !aunit_runner
-            else cond #(
-                when !with_coverage = abap_false
-                then new zcl_adash_aunit_no_coverage( )
-             )
+            when with_coverage eq abap_false then new_no_coverage_runner( )
+            else new_coverage_runner( )
          )
     ).
 
