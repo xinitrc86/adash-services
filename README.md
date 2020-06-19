@@ -11,9 +11,9 @@ Please refer to [ADASH Cli](https://github.com/xinitrc86/adash-cli).
 
 ## Installation
 * Clone it or import the zip with [ABAPGit](https://github.com/larshp/abapGit).
-..* This will activate ADASH services in /iwfnd/maint_services. Make sure they have a proper system alias after clonning.
-..* Expose API in SICF with handler class zcl_adash_sicf_api_handler. 
-...* If you wish to change the defult /sap/zadash path, you will need to change zcl_adash_sicf_api_handler with the new path too.
+  * This will activate ADASH services in /iwfnd/maint_services. Make sure they have a proper system alias after clonning.
+  * Expose API in SICF with handler class zcl_adash_sicf_api_handler. 
+    * If you wish to change the defult /sap/zadash path, you will need to change zcl_adash_sicf_api_handler with the new path too.
 * Schedulle zpr_adash_setup_runner for monitoring.
 
 ## Dependencies
