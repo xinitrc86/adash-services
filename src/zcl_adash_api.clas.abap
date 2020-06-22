@@ -55,80 +55,12 @@ class zcl_adash_api definition
     methods set_status
       changing
         response type zsbc_adash_api_test_response.
-endclass.
+ENDCLASS.
 
 
 
-class zcl_adash_api implementation.
+CLASS ZCL_ADASH_API IMPLEMENTATION.
 
-  method zif_swag_handler~meta.
-
-    append value #(
-        summary = 'Execute tests on given a given component and return results'
-        url-regex = '/(\w*)/(\w*)/test'
-        url-group_names = value #(
-            ( 'TYPE' )
-            ( 'COMPONENT' )
-        )
-        method = zcl_swag=>c_method-get
-        handler = 'RUN_TESTS'
-
-    ) to rt_meta.
-
-    append value #(
-        summary = 'Add a component for monitoring'
-        url-regex = '/(\w*)/(\w*)/add'
-        url-group_names = value #(
-            ( 'TYPE' )
-            ( 'COMPONENT' )
-        )
-        method = zcl_swag=>c_method-get
-        handler = 'ADD_FOR_TESTS'
-    ) to rt_meta.
-
-  endmethod.
-
-
-  method run_tests.
-
-    data(setup) = getsetup(
-              i_type      = type
-              i_component = component
-              i_with_coverage = with_coverage  ).
-
-    data(runner) = new zcl_adash_component_runner(
-       guid_filter  = setup-current_execution_guid
-       component      = setup-name
-       type      = setup-type
-       with_coverage = setup-with_coverage
-    ).
-
-
-    data(results) = runner->run_and_return_results( ).
-
-
-    response-tests = results->get_adash_test_method_results(  ).
-    response-sumaries = results->get_adash_results_summary(  ).
-    set_status(
-          changing
-            response = response ).
-
-
-    data(persistence_layer) = cast zif_adash_results_db_layer( new zcl_adash_results_db_layer(  ) ).
-    persistence_layer->persist(
-        results_container = results ).
-
-    if setup-type = TYPE_PACKAGE.
-        prepare_package_response(
-              exporting
-                setup = setup
-              changing
-                response = response ).
-    endif.
-
-
-
-  endmethod.
 
   method add_for_tests.
 
@@ -154,6 +86,27 @@ class zcl_adash_api implementation.
   endmethod.
 
 
+  method delete_objects_from_subnodes.
+
+    delete response-sumaries
+       where ( parent_package = setup-name
+               and type <> type_package
+          ).
+
+  endmethod.
+
+
+  method filter_parents_n_sub_subnodes.
+
+    delete c_response-sumaries
+       "parent packages
+        where ( type = 'DEVC '
+         and parent_package <> i_setup-name
+         and package_own <> i_setup-name  ).
+
+  endmethod.
+
+
   method getsetup.
 
     data(upper_type)  = |{ !i_type case = upper }|.
@@ -174,17 +127,6 @@ class zcl_adash_api implementation.
   endmethod.
 
 
-  method filter_parents_n_sub_subnodes.
-
-    delete c_response-sumaries
-       "parent packages
-        where ( type = 'DEVC '
-         and parent_package <> i_setup-name
-         and package_own <> i_setup-name  ).
-
-  endmethod.
-
-
   method list_my_level_only.
 
     filter_parents_n_sub_subnodes(
@@ -192,16 +134,6 @@ class zcl_adash_api implementation.
             i_setup = i_setup
           changing
             c_response = c_response ).
-
-  endmethod.
-
-
-  method delete_objects_from_subnodes.
-
-    delete response-sumaries
-       where ( parent_package = setup-name
-               and type <> type_package
-          ).
 
   endmethod.
 
@@ -243,6 +175,46 @@ class zcl_adash_api implementation.
   endmethod.
 
 
+  method run_tests.
+
+    data(setup) = getsetup(
+              i_type      = type
+              i_component = component
+              i_with_coverage = with_coverage  ).
+
+    data(runner) = new zcl_adash_component_runner(
+       guid_filter  = setup-current_execution_guid
+       component      = setup-name
+       type      = setup-type
+       with_coverage = setup-with_coverage
+    ).
+
+
+    data(results) = runner->run_and_return_results( ).
+
+
+    response-tests = results->get_adash_test_method_results(  ).
+    response-sumaries = results->get_adash_results_summary(  ).
+    set_status(
+          changing
+            response = response ).
+
+
+    data(persistence_layer) = cast zif_adash_results_db_layer( new zcl_adash_results_db_layer(  ) ).
+    persistence_layer->persist(
+        results_container = results ).
+
+    if setup-type = TYPE_PACKAGE.
+        prepare_package_response(
+              exporting
+                setup = setup
+              changing
+                response = response ).
+    endif.
+
+  endmethod.
+
+
   method set_status.
 
     response-status = cond #(
@@ -255,4 +227,31 @@ class zcl_adash_api implementation.
 
   endmethod.
 
-endclass.
+
+  method zif_swag_handler~meta.
+
+    append value #(
+        summary = 'Execute tests on given a given component and return results'
+        url-regex = '/(\w*)/(\w*)/test'
+        url-group_names = value #(
+            ( 'TYPE' )
+            ( 'COMPONENT' )
+        )
+        method = zcl_swag=>c_method-get
+        handler = 'RUN_TESTS'
+
+    ) to rt_meta.
+
+    append value #(
+        summary = 'Add a component for monitoring'
+        url-regex = '/(\w*)/(\w*)/add'
+        url-group_names = value #(
+            ( 'TYPE' )
+            ( 'COMPONENT' )
+        )
+        method = zcl_swag=>c_method-get
+        handler = 'ADD_FOR_TESTS'
+    ) to rt_meta.
+
+  endmethod.
+ENDCLASS.
