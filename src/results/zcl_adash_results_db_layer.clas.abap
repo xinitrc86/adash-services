@@ -14,20 +14,6 @@ class zcl_adash_results_db_layer definition
       returning
         value(summary_with_timestamp) type zsbc_adash_result_summary_t.
     methods create_new_operation_guid.
-    methods get_group_summary_records
-      importing
-                temp_summary   type zsbc_adash_result_summary_t
-                group_guid     type guid_32
-      returning value(results) type zsbc_adash_result_summary_t.
-    methods should_keep_history_for_guid
-      importing
-        execution_guid type guid_32
-      returning
-        value(result)  type ztbc_adash_setup-keep_history.
-    methods keep_current_sumary_as_history
-      importing
-        summaries      type zsbc_adash_result_summary_t
-        execution_guid type guid_32.
     methods persist_summary_results
       importing
         results_container type ref to zif_adash_results_container.
@@ -39,16 +25,6 @@ class zcl_adash_results_db_layer definition
         results_container type ref to zif_adash_results_container
       returning
         value(results)    type zsbc_adash_test_methods_t.
-    methods get_test_methods_on_group_guid
-      importing
-        test_methods_results type zsbc_adash_test_methods_t
-        group_guid           type guid_32
-      returning
-        value(results)       type zsbc_adash_test_methods_t.
-    methods keep_current_tests_as_history
-      importing
-        tests      type zsbc_adash_test_methods_t
-        group_guid type guid_32.
     methods remove_deleted_entries.
 endclass.
 
@@ -82,23 +58,18 @@ class zcl_adash_results_db_layer implementation.
     data(temp_summary) = apply_timestamp_to_summaries( results_container ).
     check temp_summary is not initial.
     data(new_time_stamp) = temp_summary[ 1 ]-timestamp.
+    data(guid) = temp_summary[ 1 ]-execution.
 
-    loop at temp_summary into data(group)
-    group by group-execution.
+    modify ztbc_au_results from table temp_summary.
 
-      data(group_records) = get_group_summary_records(
-            temp_summary = temp_summary
-            group_guid   = group-execution ).
+    delete from ztbc_au_results
+        where execution = @guid
+        and timestamp <> @new_time_stamp
+        or exists ( select  * from tadir as _entry
+            where _entry~object = ztbc_au_results~type
+              and _entry~obj_name = ztbc_au_results~name
+              and delflag = @abap_true ).
 
-      if should_keep_history_for_guid( group-execution ).
-        keep_current_sumary_as_history(
-            execution_guid = group-execution
-            summaries   = temp_summary ).
-      endif.
-
-      modify ztbc_au_results from table group_records.
-
-    endloop.
 
   endmethod.
 
@@ -110,24 +81,19 @@ class zcl_adash_results_db_layer implementation.
     data(test_methods_results) = apply_timestamp_to_test_methds( results_container ).
     check test_methods_results is not initial.
     data(new_time_stamp) = test_methods_results[ 1 ]-timestamp.
+    data(guid) = test_methods_results[ 1 ]-execution.
 
 
-    loop at test_methods_results into data(group)
-    group by group-package_own.
 
-      data(group_records) = get_test_methods_on_group_guid(
-            test_methods_results = test_methods_results
-            group_guid           = group-execution ).
+    modify ztbc_au_tests from table test_methods_results.
+    delete from ztbc_au_tests
+        where execution = @guid
+        and timestamp <> @new_time_stamp
+        or exists ( select  * from tadir as _entry
+                    where _entry~object = ztbc_au_tests~type
+                      and _entry~obj_name = ztbc_au_tests~name
+                      and delflag = @abap_true ).
 
-      if should_keep_history_for_guid( group-execution ).
-        keep_current_tests_as_history(
-            group_guid = group-execution
-            tests = test_methods_results ).
-      endif.
-
-      modify ztbc_au_tests from table group_records.
-
-    endloop.
 
   endmethod.
 
@@ -148,57 +114,6 @@ class zcl_adash_results_db_layer implementation.
     modify results from value #( timestamp = time_stamp ) transporting timestamp
     where timestamp = ''.
     "@TODO results_container->set_adash_test_method_results( results )
-
-  endmethod.
-  method get_group_summary_records.
-
-    results = value zsbc_adash_result_summary_t( for row_in_group in temp_summary
-        where ( execution = group_guid )
-            ( row_in_group )
-        ).
-
-  endmethod.
-
-
-  method get_test_methods_on_group_guid.
-
-    results  = value zsbc_adash_test_methods_t(
-    for row in test_methods_results
-        where ( execution = group_guid )
-        ( row )
-    ).
-
-  endmethod.
-
-
-  method keep_current_sumary_as_history.
-
-    "@sets a hash to the result, not
-    "will have a different timestamp
-    "and therefore, is now a history
-    update ztbc_au_results
-       set execution = @me->operation_guid
-     where execution = @execution_guid.
-
-  endmethod.
-
-
-  method keep_current_tests_as_history.
-
-    update ztbc_au_tests
-    set execution = @me->operation_guid
-    where execution = @group_guid.
-
-  endmethod.
-
-
-
-  method should_keep_history_for_guid.
-
-    select single keep_history
-    into      @result
-    from ztbc_adash_setup
-    where current_execution_guid = @execution_guid.
 
   endmethod.
 

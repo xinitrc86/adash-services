@@ -15,7 +15,6 @@ inheriting from zcl_assert.
       teardown,
       it_saves for testing,
       it_updates_one for testing,
-      it_keeps_history for testing,
       it_saves_test_methods_result for testing,
       it_removes_deleted_objects for testing,
       given_container_has_summary
@@ -156,6 +155,8 @@ class ltc_results_db implementation.
 
     reset_instances( ).
 
+    wait up to 1 seconds.
+
     "object has been deleted
     given_container_has_summary(
          name        = 'XXX_TEST8'
@@ -175,18 +176,6 @@ class ltc_results_db implementation.
     then_record_count_for_guid_is(
         expected_number_of_records = 1 "test 7 should not exist anymore
         count_test_results_too = abap_false ).
-
-    then_should_find_history_for(
-          name        = 'XXX_TEST7'
-          type        = 'CLAS'
-          total_tests = 100 ).
-
-    then_has_test_methd_history(
-          name        = 'XXX_TEST7'
-          type        = 'CLAS'
-          test_class  = 'XXX_TEST7'
-          test_method = 'IT_TESTS'
-          result      = 1 ).
 
   endmethod.
 
@@ -231,35 +220,6 @@ class ltc_results_db implementation.
 
   endmethod.
 
-  method it_keeps_history.
-
-    "in case there is a setup for the guid received,
-    "flaged to keep history, well...keep history!
-    given_a_setup_for_guid(
-          execution_guid = default_guid
-          keep_history   = abap_true ).
-
-    given_container_has_summary(
-          name        = 'XXX_TEST'
-          type        = 'CLAS'
-          total_tests = 100 ).
-
-
-    when_persisting_container( ).
-
-    when_persisting_container( ).
-
-    then_record_count_for_guid_is( 1 ).
-
-    then_should_find_history_for(
-          name        = 'XXX_TEST'
-          type        = 'CLAS'
-          total_tests = 100 ).
-
-
-  endmethod.
-
-
   method it_saves_test_methods_result.
 
     given_a_setup_for_guid(
@@ -295,12 +255,6 @@ class ltc_results_db implementation.
         count_test_results_too     =  abap_true
     ).
 
-    then_has_test_methd_history(
-          name        = 'XXX_TEST'
-          type        = 'CLAS'
-          test_class  = 'XXX_TEST'
-          test_method = 'IT_TESTS'
-          result      = 1 ).
 
 
   endmethod.
@@ -321,7 +275,6 @@ class ltc_results_db implementation.
   method when_persisting_container.
 
     cut->persist(
-        is_subset = is_subset
         results_container = results_container
 
     ).
