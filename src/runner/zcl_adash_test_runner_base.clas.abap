@@ -126,7 +126,7 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
   method run_aunit_n_extract_result.
 
 
-    data(own_package) = zcl_adash_results_container=>populate_package_data(
+    data(own_package) = zcl_adash_entry_info_provider=>populate_package_data(
         value #(
             type = setup-type
             name = setup-name

@@ -3,6 +3,7 @@
 {
 "FROM":
 [
+"E07T",
 "SEOCLASSTX",
 "TADIR",
 "TDEVCT",
@@ -12,6 +13,7 @@
 ],
 "ASSOCIATED":
 [
+"E07T",
 "SEOCLASSTX",
 "TDEVCT",
 "TLIBT",

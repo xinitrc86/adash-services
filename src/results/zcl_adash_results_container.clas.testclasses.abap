@@ -21,13 +21,15 @@ inheriting from zcl_assert.
 
     methods:
       setup,
+      it_returns_a_full_result for testing,
       it_captures_test_results for testing,
-      it_sums_results_to_parent_pkgs for testing,
+      it_adds_results_to_parent_pkgs for testing,
       it_considers_existing_results for testing,
       it_detects_no_coverage_run for testing,
       it_captures_test_coverage for testing,
       it_captures_test_methods_resul for testing,
-      "@TODO: avoid multiple adds for the same entry!!!
+      "@TODO: avoid multiple adds for the same entry
+      "@TODO: avoid package entries
       then_should_have_adash_summary
         importing
           execution_guid               type guid_32
@@ -39,6 +41,7 @@ inheriting from zcl_assert.
           statements_covered           type i optional
           statements_count             type i optional
           statements_uncovered         type i optional
+          check_change_data type abap_bool optional
         returning
           value(adash_results_summary) type zsbc_adash_result_summary_t,
       then_test_method_results_has
@@ -64,9 +67,60 @@ class ltc_results_container implementation.
   method setup.
 
     o_cut =  new zcl_adash_results_container( self_test ).
-    default_test_entry = zcl_adash_results_container=>populate_package_data( default_test_entry ).
+    default_test_entry = zcl_adash_entry_info_provider=>populate_package_data( default_test_entry ).
     delete from ztbc_au_results where execution = me->self_test.
     delete from ztbc_au_tests where execution = me->self_test.
+
+  endmethod.
+
+  method it_returns_a_full_result.
+
+    data(result_entry) = value zsbc_test_summary(
+        entry = default_test_entry
+        total_tests = 100
+        total_failed = 60
+        total_success = 40
+    ).
+
+    o_cut->add_test_summary(
+        result_entry
+    ).
+
+    data(results) = o_cut->get_adash_results_summary( ).
+    data(my_result) = results[ 1 ].
+
+    assert_not_initial(
+        act = my_Result-package_own
+        msg = 'Should return package data'
+    ).
+
+    assert_not_initial(
+        act = my_Result-entry-parent_package
+        msg = 'Should return package data'
+    ).
+
+    assert_not_initial(
+        act = my_Result-change_date
+        msg = 'Should return last change data'
+    ).
+
+    assert_not_initial(
+        act = my_Result-change_time
+        msg = 'Should return last change data'
+    ).
+
+    assert_not_initial(
+        act = my_Result-change_author
+        msg = 'Should return last change data'
+    ).
+
+    assert_not_initial(
+        act = my_Result-change_id
+        msg = 'Should return last change data'
+    ).
+
+
+
 
   endmethod.
 
@@ -94,7 +148,7 @@ class ltc_results_container implementation.
 
   endmethod.
 
-  method it_sums_results_to_parent_pkgs.
+  method it_adds_results_to_parent_pkgs.
 
     data(result_entry) = value zsbc_test_summary(
         entry = default_test_entry
@@ -131,6 +185,19 @@ class ltc_results_container implementation.
           total_failed  = 60
           message       = 'Should have added to parent package ' ).
 
+    "change data
+    then_should_have_adash_summary(
+          name          = default_test_entry-package_own
+          execution_guid  = self_test
+          check_change_data = abap_true
+          message       = 'Should have added to own package ' ).
+
+    then_should_have_adash_summary(
+          name          = default_test_entry-parent_package
+          execution_guid  = self_test
+          check_change_data = abap_true
+          message       = 'Should have added to parent package ' ).
+
 
   endmethod.
 
@@ -138,7 +205,7 @@ class ltc_results_container implementation.
     "the idea here is that I might do a partial execution of the tests
     "but I still want the full tree updated
 
-    data(my_package_data) = zcl_adash_results_container=>populate_package_data( default_test_entry  ).
+    data(my_package_data) = zcl_adash_entry_info_provider=>populate_package_data( default_test_entry  ).
 
     "An existing run of Our tested entry, a class
     given_an_existing_result(
@@ -204,7 +271,6 @@ class ltc_results_container implementation.
     "first run with coverage -> count is 100
     "second run, no coverage, don't do a delta take existing -> count still 100
 
-    data(my_package_data) = zcl_adash_results_container=>populate_package_data( default_test_entry  ).
 
     "An existing run of Our tested entry, a class
     given_an_existing_result(
@@ -216,10 +282,10 @@ class ltc_results_container implementation.
     "The existing summary of the Package of class with results from someone else
     given_an_existing_result(
           entry = value #(
-            name = my_package_data-package_own
+            name = default_test_entry-package_own
             type = 'DEVC'
-            package_own = my_package_data-package_own
-            parent_package = my_package_data-parent_package )
+            package_own = default_test_entry-package_own
+            parent_package = default_test_entry-parent_package )
           statements_count      = 70
           statements_covered    = 40
           statements_uncovered  = 30 ).
@@ -269,7 +335,7 @@ class ltc_results_container implementation.
 
     "x = 70 + ( 100 - 50 ) = 120
     then_should_have_adash_summary(
-          name          = my_package_data-package_own
+          name          = default_test_entry-package_own
           execution_guid  = self_test
           total_tests    = 12
           total_failed = 2
@@ -388,8 +454,8 @@ class ltc_results_container implementation.
 
     then_test_method_results_has( value #(
          base a_method_result
-         package_own = 'ZBC_ADASH_RESULTS' "Should populate package data
-         parent_package = 'ZBC_ADASH'
+         package_own = default_test_entry-package_own "Should populate package data
+         parent_package = default_test_entry-parent_package
          execution = self_test
         )
 
@@ -397,8 +463,8 @@ class ltc_results_container implementation.
 
     then_test_method_results_has( value #(
          base another_method_result
-         package_own = 'ZBC_ADASH_RESULTS' "Should populate package data
-         parent_package = 'ZBC_ADASH'
+         package_own = default_test_entry-package_own "Should populate package data
+         parent_package = default_test_entry-parent_package
          execution = self_test
         )
 
@@ -469,6 +535,27 @@ class ltc_results_container implementation.
           act = a_row-statements_uncovered
           msg = `Uncovered statements for ` && name && ` not the expected.`
       ).
+    endif.
+
+    if check_change_data eq abap_true.
+
+        assert_not_initial(
+            act = a_row-change_date
+            msg = `Could not find chage information for ` && name
+
+        ).
+
+        assert_not_initial(
+            act = a_row-change_time
+            msg = 'Could not find chage information for ' && name
+
+        ).
+
+                    assert_not_initial(
+            act = a_row-change_author
+            msg = 'Could not find chage information for ' && name
+
+        ).
     endif.
 
 

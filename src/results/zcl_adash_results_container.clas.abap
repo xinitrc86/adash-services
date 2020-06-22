@@ -11,27 +11,23 @@ class zcl_adash_results_container definition
       importing
         execution_guid type guid_32.
 
-    class-methods:
-      populate_package_data
-        importing
-                  entry         type zsbc_program_entry
-        returning value(result) type zsbc_program_entry.
 
   protected section.
   private section.
     data adash_results type zsbc_adash_result_summary_t.
     data test_method_results type zsbc_adash_test_methods_t.
     data my_execution_guid type guid_32.
+    data last_change_computed type zsbc_adash_change_info.
 
     methods add_summary_to_parent_pkg
       importing
         delta_summary  type zsbc_test_summary optional
         coverage_delta type zsbc_coverage_summary optional
         package_to_add type ztbc_au_results-package_own.
-    methods compute_summary
+    methods compute_delta_to_adash_result
       importing
-        delta_summary         type zsbc_test_summary optional
-        coverage_delta        type zsbc_coverage_summary optional
+        i_delta_summary         type zsbc_test_summary optional
+        i_coverage_delta        type zsbc_coverage_summary optional
       returning
         value(entry_computed) type ztbc_au_results.
     methods get_current_value
@@ -40,6 +36,21 @@ class zcl_adash_results_container definition
         coverage_summary      type zsbc_coverage_summary optional
       changing
         value(entry_computed) type ztbc_au_results.
+    methods get_test_summary_as_own_delta
+      importing
+        test_summary         type zsbc_test_summary
+      returning
+        value(delta_summary) type zsbc_test_summary.
+    methods get_coverage_as_own_delta
+      importing
+        coverage_summary     type zsbc_coverage_summary
+      returning
+        value(delta_summary) type zsbc_coverage_summary.
+    methods populate_change_data
+      importing
+        i_entry_computed_key type zsbc_test_summary-entry
+      changing
+        c_entry_computed     type ztbc_au_results.
 
 endclass.
 
@@ -49,26 +60,10 @@ class zcl_adash_results_container implementation.
 
   method zif_adash_results_container~add_test_summary.
 
+    data(delta_summary) = get_test_summary_as_own_delta( test_summary ).
 
-    "starting to downport maybe? What is available at 740sp05?
-    data entry_computed type ztbc_au_results.
-    data delta_summary type zsbc_test_summary.
-    data was type  ztbc_au_results.
-
-    select single * from ztbc_au_results
-    into @was
-    where name = @test_summary-entry-name
-    and type = @test_summary-entry-type
-    and execution = @me->my_execution_guid.
-
-
-    delta_summary = test_summary. "new
-    delta_summary-total_tests = test_summary-total_tests - was-total_tests.
-    delta_summary-total_failed = test_summary-total_failed - was-total_failed.
-    delta_summary-total_success = test_summary-total_success - was-total_success.
-
-    entry_computed = compute_summary(
-        delta_summary = delta_summary ).
+    data(entry_computed) = compute_delta_to_adash_result(
+        i_delta_summary = delta_summary ).
 
     check entry_computed-package_own is not initial.
 
@@ -90,20 +85,10 @@ class zcl_adash_results_container implementation.
     or coverage_summary-statements_uncovered <> 0 ).
 
 
-    select single * from ztbc_au_results
-    into @data(was)
-    where name = @coverage_summary-entry-name
-    and type = @coverage_summary-entry-type
-    and execution = @me->my_execution_guid.
+    data(delta_summary) = get_coverage_as_own_delta( coverage_summary ).
 
-
-    data(delta_summary) = coverage_summary. "new
-    delta_summary-statements_count = coverage_summary-statements_count - was-statements_count.
-    delta_summary-statements_covered = coverage_summary-statements_covered - was-statements_covered.
-    delta_summary-statements_uncovered = coverage_summary-statements_uncovered - was-statements_uncovered.
-
-    data(entry_computed) = compute_summary(
-        coverage_delta = delta_summary ).
+    data(entry_computed) = compute_delta_to_adash_result(
+        i_coverage_delta = delta_summary ).
 
     add_summary_to_parent_pkg(
           coverage_delta = delta_summary
@@ -115,7 +100,7 @@ class zcl_adash_results_container implementation.
   method zif_adash_results_container~add_test_method_result.
 
     data(with_package) = test_method.
-    with_package-entry = populate_package_data( with_package-entry ).
+    with_package-entry = zcl_adash_entry_info_provider=>populate_package_data( with_package-entry ).
     with_package-execution = my_execution_guid.
     append with_package to test_method_results.
 
@@ -152,9 +137,9 @@ class zcl_adash_results_container implementation.
            ).
     endif.
 
-    data(entry_computed) = compute_summary(
-        delta_summary = package_test_summary
-        coverage_delta = package_coverage_summary
+    data(entry_computed) = compute_delta_to_adash_result(
+        i_delta_summary = package_test_summary
+        i_coverage_delta = package_coverage_summary
      ).
 
     check entry_computed-parent_package is not initial.
@@ -168,77 +153,69 @@ class zcl_adash_results_container implementation.
 
   endmethod.
 
-  method compute_summary.
+  method compute_delta_to_adash_result.
 
-    if delta_summary-entry is not initial.
+    if i_delta_summary-entry is not initial.
 
       entry_computed  = value #( me->adash_results[
-          name = delta_summary-entry-name
-          type = delta_summary-entry-type ] optional ).
+          name = i_delta_summary-entry-name
+          type = i_delta_summary-entry-type ] optional ).
 
-      data(entry_computed_key) = delta_summary-entry.
+      data(entry_computed_key) = i_delta_summary-entry.
 
-    elseif coverage_delta-entry is not initial.
+    elseif i_coverage_delta-entry is not initial.
 
-      entry_computed_key = coverage_delta-entry.
+      entry_computed_key = i_coverage_delta-entry.
       entry_computed  = value #( me->adash_results[
-          name = coverage_delta-entry-name
-          type = coverage_delta-entry-type ] optional ).
+          name = i_coverage_delta-entry-name
+          type = i_coverage_delta-entry-type ] optional ).
 
     endif.
 
     get_current_value(
         exporting
-            delta_summary    = delta_summary
-            coverage_summary = coverage_delta
+            delta_summary    = i_delta_summary
+            coverage_summary = i_coverage_delta
         changing
             entry_computed = entry_computed
     ).
 
     entry_computed-execution = my_execution_guid.
 
+    entry_computed-total_tests = entry_computed-total_tests + i_delta_summary-total_tests.
+    entry_computed-total_success = entry_computed-total_success + i_delta_summary-total_success.
+    entry_computed-total_failed = entry_computed-total_failed + i_delta_summary-total_failed.
 
-    entry_computed-total_tests = entry_computed-total_tests + delta_summary-total_tests.
-    entry_computed-total_success = entry_computed-total_success + delta_summary-total_success.
-    entry_computed-total_failed = entry_computed-total_failed + delta_summary-total_failed.
+    entry_computed-statements_count = entry_computed-statements_count + i_coverage_delta-statements_count.
+    entry_computed-statements_covered = entry_computed-statements_covered + i_coverage_delta-statements_covered.
+    entry_computed-statements_uncovered = entry_computed-statements_uncovered + i_coverage_delta-statements_uncovered.
 
-    entry_computed-statements_count = entry_computed-statements_count + coverage_delta-statements_count.
-    entry_computed-statements_covered = entry_computed-statements_covered + coverage_delta-statements_covered.
-    entry_computed-statements_uncovered = entry_computed-statements_uncovered + coverage_delta-statements_uncovered.
-
+    populate_change_data(
+          exporting
+            i_entry_computed_key = entry_computed_key
+          changing
+            c_entry_computed = entry_computed ).
 
     if entry_computed-entry is not initial.
       "It might have changed places!
-      move-corresponding populate_package_data( entry_computed-entry ) to entry_computed.
+      move-corresponding zcl_adash_entry_info_provider=>populate_package_data( entry_computed-entry ) to entry_computed.
       modify table me->adash_results from entry_computed.
     else.
       "It might have changed places!
       move-corresponding entry_computed_key to entry_computed-entry.
-      move-corresponding populate_package_data( entry_computed-entry ) to entry_computed.
+      move-corresponding zcl_adash_entry_info_provider=>populate_package_data( entry_computed-entry ) to entry_computed.
+
       insert entry_computed into table me->adash_results.
     endif.
+
+
+
 
   endmethod.
 
   method constructor.
     me->my_execution_guid = execution_guid.
   endmethod.
-
-  method populate_package_data.
-
-    result = entry.
-    select single
-           program_entry~devclass as package_own,
-           parent~parentcl as parent_package
-        into corresponding fields of @result
-        from tadir as program_entry
-        left outer join tdevc as parent
-        on parent~devclass = program_entry~devclass
-        where program_entry~object = @entry-type
-        and program_entry~obj_name = @entry-name.
-
-  endmethod.
-
 
   method get_current_value.
     if delta_summary is supplied.
@@ -303,6 +280,57 @@ class zcl_adash_results_container implementation.
         entry_computed-statements_uncovered = entry_computed-statements_uncovered.
 
       endif.
+
+    endif.
+
+  endmethod.
+
+
+  method get_test_summary_as_own_delta.
+
+    select single * from ztbc_au_results
+    into @data(was)
+    where name = @test_summary-entry-name
+    and type = @test_summary-entry-type
+    and execution = @me->my_execution_guid.
+
+
+    delta_summary  = test_summary. "new
+    delta_summary-total_tests = test_summary-total_tests - was-total_tests.
+    delta_summary-total_failed = test_summary-total_failed - was-total_failed.
+    delta_summary-total_success = test_summary-total_success - was-total_success.
+
+  endmethod.
+
+
+  method get_coverage_as_own_delta.
+
+    select single * from ztbc_au_results
+    into @data(was)
+    where name = @coverage_summary-entry-name
+    and type = @coverage_summary-entry-type
+    and execution = @me->my_execution_guid.
+
+
+    delta_summary  = coverage_summary. "new
+    delta_summary-statements_count = coverage_summary-statements_count - was-statements_count.
+    delta_summary-statements_covered = coverage_summary-statements_covered - was-statements_covered.
+    delta_summary-statements_uncovered = coverage_summary-statements_uncovered - was-statements_uncovered.
+
+  endmethod.
+
+
+  method populate_change_data.
+
+    if i_entry_computed_key-type = 'DEVC'.
+      if last_change_computed >= c_entry_computed-last_change.
+        c_entry_computed-last_change = last_change_computed.
+      endif.
+
+    else.
+
+      last_change_computed = zcl_adash_entry_info_provider=>get_last_change_info( corresponding #( i_entry_computed_key ) ).
+      c_entry_computed-last_change = last_change_computed.
 
     endif.
 

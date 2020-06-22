@@ -12,22 +12,26 @@ define view ZCV_ADASH_RESULTS_C as select from ztbc_au_results as _results
 
    
    association [0..1] to seoclasstx as _classDescription
-   on   _classDescription.clsname = $projection.name
+   on   _classDescription.clsname = _results.name
    and _classDescription.langu = 'E'
 
    association [0..1] to tdevct as _packageDescription
-   on   _packageDescription.devclass = $projection.name
+   on   _packageDescription.devclass = _results.name
    and _packageDescription.spras = 'E'
 
 
    association [0..1] to trdirti as _programDescription
-   on   _programDescription.name = $projection.name
+   on   _programDescription.name = _results.name
    and _programDescription.sprsl = 'E'
    
    association [0..1] to tlibt as _fgDescription
-   on _fgDescription.area = $projection.name
+   on _fgDescription.area = _results.name
    and _fgDescription.spras = 'E'
    
+    
+   association [0..1] to e07t as _changeDescription
+   on _changeDescription.trkorr = _results.change_id
+   and _changeDescription.langu = $session.system_language
     
 {
 
@@ -78,7 +82,12 @@ define view ZCV_ADASH_RESULTS_C as select from ztbc_au_results as _results
    case statements_count
         when 0 then 0
         else round(div( statements_covered * 100, statements_count ),0) 
-   end as coveragePercentage
+   end as coveragePercentage,
     
+   change_date as lastChangeDate,
+   change_time as lastChangeTime,
+   change_author as lastChangeAuthor,
+   change_id as lastChangeId,
+   _changeDescription.as4text as lastChangeDescription
 }  
  
