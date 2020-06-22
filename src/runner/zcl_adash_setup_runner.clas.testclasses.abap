@@ -16,7 +16,7 @@ inheriting from zcl_assert.
     methods:
       setup,
       teardown,
-      it_runs_setup_records for testing,
+      it_runs_all_setup_records for testing,
       it_avoids_tree_double_run for testing,
       it_adapts_results for testing,
       given_an_adash_setup
@@ -50,7 +50,7 @@ class ltc_setup_runner implementation.
   method teardown.
   endmethod.
 
-  method it_runs_setup_records.
+  method it_runs_all_setup_records.
 
 
     given_an_adash_setup(
@@ -68,13 +68,18 @@ class ltc_setup_runner implementation.
           i_max_duration   = if_Aunit_Attribute_Enums=>c_Duration-short ).
 
 
-    cut->run_and_return_results( ).
+    data(results_container) = cut->run_and_return_results( ).
 
     then_aunit_runner_is_called_w(
           expected_type         = 'DEVC'
           expected_name         = 'OTHER_PACKAGE'
           expected_max_duration = if_Aunit_Attribute_Enums=>c_Duration-short
           expected_max_risk     = if_Aunit_Attribute_Enums=>c_risk_level-harmless ).
+
+    assert_true(
+        act = results_container->is_full_run( )
+        msg = 'A run of all setups should be considered a full run.'
+    ).
 
   endmethod.
 

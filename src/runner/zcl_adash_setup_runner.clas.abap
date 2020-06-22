@@ -52,6 +52,53 @@ CLASS ZCL_ADASH_SETUP_RUNNER IMPLEMENTATION.
   endmethod.
 
 
+  method run_and_return_results.
+
+    load_setup( ).
+
+    loop at adash_setups into data(a_setup).
+        create_run_results_container(
+            setup = a_setup
+            is_full_run = abap_true ).
+        result = run_aunit_and_adapt( a_setup ).
+
+    endloop.
+
+
+  endmethod.
+
+  method prepare_filter.
+
+    if guid_filter is not initial.
+      me->guid_filter_range = value #(
+          ( option = 'EQ'
+          sign = 'I'
+          low =  guid_filter ) ).
+    endif.
+
+  endmethod.
+
+      method load_setup.
+
+    select * from ztbc_adash_setup
+    into table @adash_setups
+    where current_execution_guid in @me->guid_filter_range.
+
+    loop at adash_setups assigning field-symbol(<setup_to_check>).
+
+        data(indexCurrent) = sy-tabix.
+        <setup_to_check>-with_coverage = me->with_coverage.
+        data(package) =  <setup_to_check>-name.
+
+        if has_a_parent_in_setup( <setup_to_check> ).
+            delete adash_setups index indexCurrent.
+        endif.
+
+    endloop.
+
+  endmethod.
+
+
   method has_a_parent_in_setup.
 
     data(as_package) = conv devclass( setup-name ).
@@ -83,52 +130,4 @@ CLASS ZCL_ADASH_SETUP_RUNNER IMPLEMENTATION.
 
   endmethod.
 
-
-  method load_setup.
-
-    select * from ztbc_adash_setup
-    into table @adash_setups
-    where current_execution_guid in @me->guid_filter_range.
-
-    loop at adash_setups assigning field-symbol(<setup_to_check>).
-
-        data(indexCurrent) = sy-tabix.
-        <setup_to_check>-with_coverage = me->with_coverage.
-        data(package) =  <setup_to_check>-name.
-
-        if has_a_parent_in_setup( <setup_to_check> ).
-            delete adash_setups index indexCurrent.
-        endif.
-
-    endloop.
-
-
-
-  endmethod.
-
-
-  method prepare_filter.
-
-    if guid_filter is not initial.
-      me->guid_filter_range = value #(
-          ( option = 'EQ'
-          sign = 'I'
-          low =  guid_filter ) ).
-    endif.
-
-  endmethod.
-
-
-  method run_and_return_results.
-
-    load_setup( ).
-
-    loop at adash_setups into data(a_setup).
-        create_run_results_container( a_setup ).
-        result = run_aunit_and_adapt( a_setup ).
-
-    endloop.
-
-
-  endmethod.
 ENDCLASS.

@@ -9,7 +9,8 @@ class zcl_adash_results_container definition
 
     methods constructor
       importing
-        execution_guid type guid_32.
+        execution_guid type guid_32
+        is_full_run    type abap_bool optional.
 
 
   protected section.
@@ -18,6 +19,7 @@ class zcl_adash_results_container definition
     data test_method_results type zsbc_adash_test_methods_t.
     data my_execution_guid type guid_32.
     data last_change_computed type zsbc_adash_change_info.
+    data is_full_run type abap_bool.
 
     methods add_summary_to_parent_pkg
       importing
@@ -57,6 +59,16 @@ endclass.
 
 
 class zcl_adash_results_container implementation.
+
+  method constructor.
+    me->my_execution_guid = execution_guid.
+    me->is_full_run       = is_full_run.
+  endmethod.
+
+  method zif_adash_results_container~is_full_run.
+    result = me->is_full_run.
+  endmethod.
+
 
   method zif_adash_results_container~add_test_summary.
 
@@ -211,10 +223,6 @@ class zcl_adash_results_container implementation.
 
 
 
-  endmethod.
-
-  method constructor.
-    me->my_execution_guid = execution_guid.
   endmethod.
 
   method get_current_value.

@@ -16,7 +16,8 @@ inheriting from zcl_assert.
       it_saves for testing,
       it_updates_one for testing,
       it_saves_test_methods_result for testing,
-      it_removes_deleted_objects for testing,
+      it_cleanse_entries_on_full_run for testing,
+      it_keeps_entries_single_tst for testing,
       given_container_has_summary
         importing
           name        type c
@@ -24,7 +25,7 @@ inheriting from zcl_assert.
           total_tests type i,
       when_persisting_container
         IMPORTING
-          is_subset TYPE abap_bool OPTIONAL,
+          is_full_result_set TYPE abap_bool OPTIONAL,
       then_db_should_have_summary
         importing
           name        type c
@@ -34,7 +35,9 @@ inheriting from zcl_assert.
         importing
           expected_number_of_records type i
           count_test_results_too     type any optional,
-      reset_instances,
+      reset_instances
+        IMPORTING
+          is_full_run TYPE abap_bool default abap_true,
       then_should_find_history_for
         importing
           name        type c
@@ -126,12 +129,11 @@ class ltc_results_db implementation.
 
   endmethod.
 
-  method it_removes_deleted_objects.
+  method it_cleanse_entries_on_full_run.
 
-    "between two runs, an object can be DELETED or RENAMED. While it should still appear as history, it should not appear at last/current.
-    "@Issue: utilizing the same current_guid in the setup avoid us to delete "same guid, different time stamp" as the persistence does not
-    "happens necessarily for all the setup, but per setup.
-    "this can only work if the setup is made for individual current_guids.
+    "between two runs, an object can be DELETED or RENAMED. It should not appear at last/current.
+    "but this must be controlled through a "is_full_result_set, otherwise single tests would
+    "always remove the last results of everyone else
 
     given_a_setup_for_guid(
         execution_guid = default_guid
@@ -152,10 +154,64 @@ class ltc_results_db implementation.
 
     when_persisting_container( ).
 
-
     reset_instances( ).
 
+   "otherwise the 'new run' would have same timestamp
     wait up to 1 seconds.
+
+    "object has been deleted
+    given_container_has_summary(
+         name        = 'XXX_TEST8'
+         type        = 'CLAS'
+         total_tests = 100 ).
+
+    given_a_test_method_result(
+          name        = 'XXX_TEST8'
+          type        = 'CLAS'
+          test_class  = 'XXX_TEST8'
+          test_method = 'IT_TESTS'
+          result      = 1 ).
+
+
+    when_persisting_container( abap_true ).
+
+    then_record_count_for_guid_is(
+        expected_number_of_records = 1 "test 7 should not exist anymore
+        count_test_results_too = abap_false ).
+
+  endmethod.
+
+  method it_keeps_entries_single_tst.
+
+    "between two runs, an object can be DELETED or RENAMED. It should not appear at last/current.
+    "but this must be controlled through a "is_full_result_set, otherwise single tests would
+    "always remove the last results of everyone else
+
+    given_a_setup_for_guid(
+        execution_guid = default_guid
+        keep_history   = abap_true ).
+
+
+    given_container_has_summary(
+         name        = 'XXX_TEST7'
+         type        = 'CLAS'
+         total_tests = 100 ).
+
+    given_a_test_method_result(
+          name        = 'XXX_TEST7'
+          type        = 'CLAS'
+          test_class  = 'XXX_TEST7'
+          test_method = 'IT_TESTS'
+          result      = 1 ).
+
+    when_persisting_container( ).
+
+    reset_instances(
+        is_full_run = abap_false
+    ).
+
+   "otherwise the 'new run' would have same timestamp
+   wait up to 1 seconds.
 
     "object has been deleted
     given_container_has_summary(
@@ -174,7 +230,7 @@ class ltc_results_db implementation.
     when_persisting_container( ).
 
     then_record_count_for_guid_is(
-        expected_number_of_records = 1 "test 7 should not exist anymore
+        expected_number_of_records = 2 "test 7 should still exist
         count_test_results_too = abap_false ).
 
   endmethod.
@@ -276,7 +332,6 @@ class ltc_results_db implementation.
 
     cut->persist(
         results_container = results_container
-
     ).
 
   endmethod.
@@ -335,7 +390,9 @@ class ltc_results_db implementation.
   method reset_instances.
 
     cut = new zcl_adash_results_db_layer(  ).
-    results_container = new zcl_adash_results_container( default_guid ).
+    results_container = new zcl_adash_results_container(
+        execution_guid = default_guid
+        is_full_run = is_full_run ).
     clear selected_summaries.
 
   endmethod.
