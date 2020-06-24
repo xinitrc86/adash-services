@@ -11,7 +11,8 @@ parameters:
 data persistence_layer type ref to zif_adash_results_db_layer.
 
 
-persistence_layer = new zcl_adash_results_db_layer( ).
+persistence_layer = zcl_adash_db_update_factory=>new_full_update(  ).
+
 data(runner) = new zcl_adash_setup_runner(
     with_coverage = wcov ).
 

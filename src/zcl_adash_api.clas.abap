@@ -85,6 +85,43 @@ CLASS ZCL_ADASH_API IMPLEMENTATION.
 
   endmethod.
 
+  method run_tests.
+
+    data(setup) = getsetup(
+              i_type      = type
+              i_component = component
+              i_with_coverage = with_coverage  ).
+
+    data(runner) = new zcl_adash_component_runner(
+       guid_filter  = setup-current_execution_guid
+       component      = setup-name
+       type      = setup-type
+       with_coverage = setup-with_coverage
+    ).
+
+
+    data(results) = runner->run_and_return_results( ).
+
+
+    response-tests = results->get_adash_test_method_results(  ).
+    response-sumaries = results->get_adash_results_summary(  ).
+    set_status(
+          changing
+            response = response ).
+
+
+    data(persistence_layer) = zcl_adash_db_update_factory=>new_light_update(  ).
+    persistence_layer->persist( results ).
+
+    if setup-type = TYPE_PACKAGE.
+        prepare_package_response(
+              exporting
+                setup = setup
+              changing
+                response = response ).
+    endif.
+
+  endmethod.
 
   method delete_objects_from_subnodes.
 
@@ -173,47 +210,6 @@ CLASS ZCL_ADASH_API IMPLEMENTATION.
             response = response ).
 
   endmethod.
-
-
-  method run_tests.
-
-    data(setup) = getsetup(
-              i_type      = type
-              i_component = component
-              i_with_coverage = with_coverage  ).
-
-    data(runner) = new zcl_adash_component_runner(
-       guid_filter  = setup-current_execution_guid
-       component      = setup-name
-       type      = setup-type
-       with_coverage = setup-with_coverage
-    ).
-
-
-    data(results) = runner->run_and_return_results( ).
-
-
-    response-tests = results->get_adash_test_method_results(  ).
-    response-sumaries = results->get_adash_results_summary(  ).
-    set_status(
-          changing
-            response = response ).
-
-
-    data(persistence_layer) = cast zif_adash_results_db_layer( new zcl_adash_results_db_layer(  ) ).
-    persistence_layer->persist(
-        results_container = results ).
-
-    if setup-type = TYPE_PACKAGE.
-        prepare_package_response(
-              exporting
-                setup = setup
-              changing
-                response = response ).
-    endif.
-
-  endmethod.
-
 
   method set_status.
 

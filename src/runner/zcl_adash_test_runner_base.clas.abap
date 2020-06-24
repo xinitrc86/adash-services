@@ -42,8 +42,7 @@ protected section.
         value(result) type ref to zif_adash_results_container.
     methods create_run_results_container
       importing
-        setup type ztbc_adash_setup
-        is_full_run type abap_bool optional.
+        setup type ztbc_adash_setup.
   private section.
     data aunit_runner type ref to cl_aucv_test_runner_abstract.
     data adash_adapter type ref to zif_aunit_results_adapater.
@@ -57,7 +56,6 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
 
 
   method adapt_to_adash.
-
 
     data(aunit_task_data) = cond #(
         when aunit_results is bound then
@@ -85,8 +83,7 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
     me->results_container = cond #(
         when me->results_container is bound then me->results_container
         else new zcl_adash_results_container(
-            execution_guid = setup-current_execution_guid
-            is_full_run = is_full_run )
+            execution_guid = setup-current_execution_guid )
     ).
 
   endmethod.
@@ -125,9 +122,7 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
 
   endmethod.
 
-
   method run_aunit_n_extract_result.
-
 
     data(own_package) = zcl_adash_entry_info_provider=>populate_package_data(
         value #(

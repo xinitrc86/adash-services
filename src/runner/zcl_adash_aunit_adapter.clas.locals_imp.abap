@@ -227,7 +227,12 @@ class lcl_coverage_result_adapter definition.
       importing
         node               type ref to if_scv_result_node
       returning
-          VALUE(is_testable) TYPE abap_bool.
+          VALUE(is_testable) TYPE abap_bool,
+    has_coverage_result
+      importing
+        entry                      type zsbc_coverage_summary
+      returning
+          VALUE(has_coverage_result) TYPE abap_bool.
 
 
 
@@ -257,8 +262,9 @@ class lcl_coverage_result_adapter implementation.
             changing
               coverage_summary = as_entry ).
 
-
+    if has_coverage_result( as_entry ).
       me->results_container->add_coverage_summary( as_entry ).
+    endif.
 
     endif.
 
@@ -306,6 +312,19 @@ class lcl_coverage_result_adapter implementation.
      or node->subtype = 'FUGR'
    then abap_true
    else abap_false
+).
+
+  endmethod.
+
+
+  method has_coverage_result.
+
+    has_coverage_result  = cond #(
+when entry-statements_count <> 0
+ and ( entry-statements_covered <> 0
+ or entry-statements_uncovered <> 0 )
+ then abap_true
+ else abap_false
 ).
 
   endmethod.

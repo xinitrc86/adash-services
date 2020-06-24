@@ -1,8 +1,6 @@
 interface zif_adash_results_container
   public .
 
-  methods is_full_run
-    returning value(result) type abap_bool.
   methods add_test_method_result
     importing
         test_method type ztbc_au_tests.

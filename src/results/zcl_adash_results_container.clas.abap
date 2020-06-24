@@ -9,8 +9,7 @@ class zcl_adash_results_container definition
 
     methods constructor
       importing
-        execution_guid type guid_32
-        is_full_run    type abap_bool optional.
+        execution_guid type guid_32.
 
 
   protected section.
@@ -65,13 +64,8 @@ class zcl_adash_results_container implementation.
     me->is_full_run       = is_full_run.
   endmethod.
 
-  method zif_adash_results_container~is_full_run.
-    result = me->is_full_run.
-  endmethod.
-
-
   method zif_adash_results_container~add_test_summary.
-
+    clear last_change_computed.
     data(delta_summary) = get_test_summary_as_own_delta( test_summary ).
 
     data(entry_computed) = compute_delta_to_adash_result(
@@ -87,15 +81,7 @@ class zcl_adash_results_container implementation.
   endmethod.
 
   method zif_adash_results_container~add_coverage_summary.
-
-    "as opposed to tests, we allow previous values
-    "to exist, not taking zeros as new.
-    "this is to prevent no coverage runs to erase
-    "coverage results, simply not calling this method do the trick too though...
-    check coverage_summary-statements_count <> 0
-    and ( coverage_summary-statements_covered <> 0
-    or coverage_summary-statements_uncovered <> 0 ).
-
+     clear last_change_computed.
 
     data(delta_summary) = get_coverage_as_own_delta( coverage_summary ).
 

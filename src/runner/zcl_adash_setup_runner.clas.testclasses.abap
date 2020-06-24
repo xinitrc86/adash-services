@@ -76,11 +76,6 @@ class ltc_setup_runner implementation.
           expected_max_duration = if_Aunit_Attribute_Enums=>c_Duration-short
           expected_max_risk     = if_Aunit_Attribute_Enums=>c_risk_level-harmless ).
 
-    assert_true(
-        act = results_container->is_full_run( )
-        msg = 'A run of all setups should be considered a full run.'
-    ).
-
   endmethod.
 
   method it_adapts_results.

@@ -21,7 +21,6 @@ inheriting from zcl_assert.
 
     methods:
       setup,
-      it_has_a_full_run_flag   for testing,
       it_returns_a_full_result for testing,
       it_captures_test_results for testing,
       it_adds_results_to_parent_pkgs for testing,
@@ -71,19 +70,6 @@ class ltc_results_container implementation.
     default_test_entry = zcl_adash_entry_info_provider=>populate_package_data( default_test_entry ).
     delete from ztbc_au_results where execution = me->self_test.
     delete from ztbc_au_tests where execution = me->self_test.
-
-  endmethod.
-
-  method it_has_a_full_run_flag.
-
-    assert_false( o_cut->is_full_run(  ) ).
-
-    o_cut =  new zcl_adash_results_container(
-        execution_guid = self_test
-        is_full_run = abap_true ).
-
-    assert_true( o_cut->is_full_run(  ) ).
-
 
   endmethod.
 

@@ -58,8 +58,7 @@ CLASS ZCL_ADASH_SETUP_RUNNER IMPLEMENTATION.
 
     loop at adash_setups into data(a_setup).
         create_run_results_container(
-            setup = a_setup
-            is_full_run = abap_true ).
+            setup = a_setup ).
         result = run_aunit_and_adapt( a_setup ).
 
     endloop.
