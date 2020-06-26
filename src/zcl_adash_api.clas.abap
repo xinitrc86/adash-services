@@ -99,16 +99,13 @@ CLASS ZCL_ADASH_API IMPLEMENTATION.
        with_coverage = setup-with_coverage
     ).
 
-
     data(results) = runner->run_and_return_results( ).
-
 
     response-tests = results->get_adash_test_method_results(  ).
     response-sumaries = results->get_adash_results_summary(  ).
     set_status(
           changing
             response = response ).
-
 
     data(persistence_layer) = zcl_adash_db_update_factory=>new_light_update(  ).
     persistence_layer->persist( results ).
@@ -235,7 +232,6 @@ CLASS ZCL_ADASH_API IMPLEMENTATION.
         )
         method = zcl_swag=>c_method-get
         handler = 'RUN_TESTS'
-
     ) to rt_meta.
 
     append value #(

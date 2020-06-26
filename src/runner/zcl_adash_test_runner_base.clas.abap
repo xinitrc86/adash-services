@@ -7,18 +7,18 @@ class zcl_adash_test_runner_base definition
     methods:
       constructor
         importing
-          aunit_runner  type ref to cl_aucv_test_runner_abstract optional,
-       run_and_return_results
-        abstract
+          aunit_runner type ref to cl_aucv_test_runner_abstract optional,
+      run_and_return_results
+                    abstract
         returning value(result) type ref to zif_adash_results_container.
     class-methods:
-        new_coverage_runner
-          returning value(aunit_runner) type ref to cl_aucv_test_runner_abstract,
-        new_no_coverage_runner
-          returning value(aunit_runner) type ref to cl_aucv_test_runner_abstract.
+      new_coverage_runner
+        returning value(aunit_runner) type ref to cl_aucv_test_runner_abstract,
+      new_no_coverage_runner
+        returning value(aunit_runner) type ref to cl_aucv_test_runner_abstract.
 
 
-protected section.
+  protected section.
     methods run_aunit_and_adapt
       importing
         setup         type ztbc_adash_setup
@@ -48,11 +48,11 @@ protected section.
     data adash_adapter type ref to zif_aunit_results_adapater.
     data results_container type ref to zif_adash_results_container.
 
-ENDCLASS.
+endclass.
 
 
 
-CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
+class zcl_adash_test_runner_base implementation.
 
 
   method adapt_to_adash.
@@ -97,12 +97,12 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
 
   method new_coverage_runner.
 
-      data passport    type ref to object.
-      call method ('\PROGRAM=SAPLSAUCV_GUI_RUNNER\CLASS=PASSPORT')=>get
-        receiving
-          result = passport.
+    data passport    type ref to object.
+    call method ('\PROGRAM=SAPLSAUCV_GUI_RUNNER\CLASS=PASSPORT')=>get
+      receiving
+        result = passport.
 
-      aunit_runner = cl_aucv_test_runner_coverage=>create( passport ).
+    aunit_runner = cl_aucv_test_runner_coverage=>create( passport ).
 
   endmethod.
 
@@ -160,4 +160,4 @@ CLASS ZCL_ADASH_TEST_RUNNER_BASE IMPLEMENTATION.
     endtry.
 
   endmethod.
-ENDCLASS.
+endclass.

@@ -34,7 +34,8 @@ class ltc_ implementation.
     "The light update will simply right results to the db
     "and delete entries that were deleted, but it does not
     "compare the result set with the db.
-    if not db_update is instance of zcl_adash_light_db_update.
+    data(descriptor) = cl_abap_typedescr=>describe_by_object_ref( db_update ).
+    if not descriptor->absolute_name cp `*ZCL_ADASH_LIGHT_DB_UPDATE*`.
         fail( 'No coverage runs represent a light update.').
     endif.
 
@@ -51,7 +52,8 @@ class ltc_ implementation.
     "list of objects that are monitored.
     "The full run takes care of things such as objects that are renamed,
     "and for that it compares what is on DB.
-    if not db_update is instance of zcl_adash_full_db_update.
+    data(descriptor) = cl_abap_typedescr=>describe_by_object_ref( db_update ).
+    if not descriptor->absolute_name cp `*ZCL_ADASH_FULL_DB_UPDATE*`.
         fail( 'No coverage runs represent a full update.').
     endif.
 

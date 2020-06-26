@@ -16,6 +16,9 @@ Please refer to [ADASH Cli](https://github.com/xinitrc86/adash-cli).
     * If you wish to change the defult /sap/zadash path, you will need to change zcl_adash_sicf_api_handler with the new path too.
 * Schedulle zpr_adash_setup_runner for monitoring.
 
+## Compatibility 
+Was developed on AS v753, should work on versions as low as v740sp08. Should require little effort to go as low as v740sp05. Lower than that is not possible, for now, as this was the first release with CDSs on. If you are up to creating the Gateway OData services for older versions, we can help.
+
 ## Dependencies
 Make sure you clone the following repositories before this one.
 [zassert](https://github.com/xinitrc86/zassert)

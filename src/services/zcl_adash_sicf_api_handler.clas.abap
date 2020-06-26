@@ -4,14 +4,14 @@ class zcl_adash_sicf_api_handler definition
   create public .
 
   public section.
-     INTERFACES if_http_extension.
+    interfaces if_http_extension.
   protected section.
   private section.
-ENDCLASS.
+endclass.
 
 
 
-CLASS ZCL_ADASH_SICF_API_HANDLER IMPLEMENTATION.
+class zcl_adash_sicf_api_handler implementation.
 
 
   method if_http_extension~handle_request.
@@ -25,4 +25,4 @@ CLASS ZCL_ADASH_SICF_API_HANDLER IMPLEMENTATION.
     lo_swagger->run( ).
 
   endmethod.
-ENDCLASS.
+endclass.

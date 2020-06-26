@@ -6,7 +6,7 @@
       "skipGeneratedFunctionGroups": true
   },
   "syntax": {
-      "version": "v753",
+      "version": "v740sp08",
       "errorNamespace": "",
       "globalConstants": [],
       "globalMacros": []
@@ -33,22 +33,14 @@
       },
       "check_syntax": false,
       "cloud_types": true,
-      "colon_missing_space": true,
       "commented_code": true,
       "constructor_visibility_public": {
           "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#if-your-global-class-is-create-private-leave-the-constructor-public"
       },
-      "contains_tab": true,
       "definitions_top": true,
       "description_empty": true,
-      "double_space": {
-          "keywords": true,
-          "startParen": true,
-          "endParen": true,
-          "afterColon": true
-      },
       "empty_line_in_statement": {
-          "allowChained": false
+          "allowChained": true
       },
       "empty_statement": true,
       "empty_structure": {
@@ -72,21 +64,11 @@
       "if_in_if": {
           "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
       },
-      "in_statement_indentation": {
-          "ignoreExceptions": true
-      },
-      "indentation": {
-          "ignoreExceptions": true,
-          "alignTryCatch": false,
-          "globalClassSkipFirst": false,
-          "ignoreGlobalClassDefinition": false,
-          "ignoreGlobalInterface": false
-      },
       "inline_data_old_versions": true,
       "keyword_case": {
           "style": "lower",
-          "ignoreExceptions": true,
-          "ignoreLowerClassImplmentationStatement": true,
+          "ignoreExceptions": false,
+          "ignoreLowerClassImplmentationStatement": false,
           "ignoreGlobalClassDefinition": false,
           "ignoreGlobalInterface": false,
           "ignoreFunctionModuleName": false
@@ -105,7 +87,7 @@
       },
       "message_exists": true,
       "method_length": {
-          "statements": 100,
+          "statements": 40,
           "ignoreTestClasses": true,
           "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-methods-small",
           "errorWhenEmpty": true
@@ -172,11 +154,6 @@
           "length": 1,
           "allow": []
       },
-      "space_before_colon": true,
-      "space_before_dot": {
-          "ignoreGlobalDefinition": true,
-          "ignoreExceptions": true
-      },
       "start_at_tab": true,      
       "tabl_enhancement_category": false,
       "unreachable_code": true,
@@ -184,19 +161,6 @@
       "when_others_last": true,
       "whitespace_end": true,
       "ambiguous_statement": true,
-      "allowed_object_types": {
-          "allowed": [
-              "PROG",
-              "CLAS",
-              "INTF",
-              "DEVC",
-              "TABL",
-              "DDLS",
-              "DTEL",
-              "DOMA"
-
-          ]
-      },
       "begin_end_names": true,
       "check_transformation_exists": true,
       "form_tables_obsolete": true,
@@ -211,8 +175,7 @@
       "prefer_returning_to_exporting": true,
       "keep_single_parameter_on_one_line": {
           "length": 120
-      },
-      "allowed_object_naming": true,
+      },      
       "chain_mainly_declarations": true,
       "fully_type_constants": true,
       "check_abstract": true,
@@ -233,7 +196,7 @@
       "check_include": false,
       "xml_consistency": true,
       "prefix_is_current_class": {
-          "omitMeInstanceCalls": true
+          "omitMeInstanceCalls": false
       }
   }
 }

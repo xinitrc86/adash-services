@@ -49,14 +49,12 @@ class ltc_entry_info implementation.
     ) ).
 
     assert_char_cp(
-      exporting
         act              = filled-package_own
         exp              = '*ADASH_RESULTS'
         msg = 'Should populate own package'
     ).
 
     assert_char_cp(
-      exporting
         act              = filled-parent_package
         exp              = '*ADASH'
         msg = 'Should populate parent package'
