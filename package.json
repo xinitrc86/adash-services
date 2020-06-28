@@ -1,7 +1,7 @@
 {
 	"name": "adash-services",
 	"author" :  "xinitrc86 <felipe.dimmu@gmail.com>",
-	"version": "0.0.6",
+	"version": "0.0.7",
 	"description": "ADASH Services",
 	"license" : "MIT",
 	"repository": {
