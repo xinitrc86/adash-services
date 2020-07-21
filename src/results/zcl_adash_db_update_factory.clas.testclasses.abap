@@ -36,7 +36,7 @@ class ltc_ implementation.
     "compare the result set with the db.
     data(descriptor) = cl_abap_typedescr=>describe_by_object_ref( db_update ).
     if not descriptor->absolute_name cp `*ZCL_ADASH_LIGHT_DB_UPDATE*`.
-        fail( 'No coverage runs represent a light update.').
+        fail( 'No coverage runs represent a light update.' ).
     endif.
 
 
@@ -54,7 +54,7 @@ class ltc_ implementation.
     "and for that it compares what is on DB.
     data(descriptor) = cl_abap_typedescr=>describe_by_object_ref( db_update ).
     if not descriptor->absolute_name cp `*ZCL_ADASH_FULL_DB_UPDATE*`.
-        fail( 'No coverage runs represent a full update.').
+        fail( 'No coverage runs represent a full update.' ).
     endif.
 
 
