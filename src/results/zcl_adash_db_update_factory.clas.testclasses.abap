@@ -2,7 +2,7 @@ class ltc_ definition
 for testing
 duration short
 risk level harmless
-inheriting from zclca_assert.
+inheriting from zcl_assert.
 
   private section.
     data:

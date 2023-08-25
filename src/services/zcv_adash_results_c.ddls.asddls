@@ -5,7 +5,7 @@
 @EndUserText.label: 'Summary for packages'
 @OData.publish: true
 define view ZCV_ADASH_RESULTS_C as select from ztbc_au_results as _results
-    inner join tadir as _validObject 
+    left outer join tadir as _validObject //should be inner join, but local directories are not in tadir
     on obj_name = _results.name
     and object = _results.type
     and delflag = ''

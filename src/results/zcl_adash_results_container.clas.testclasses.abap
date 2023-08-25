@@ -10,8 +10,8 @@ inheriting from zcl_assert.
       begin of default_test_entry,
         name           type sobj_name value 'ZCL_ADASH_RESULTS_CONTAINER',
         type           type trobjtype value 'CLAS',
-        package_own    type devclass value 'ZADASH_RESULTS',
-        parent_package type devclass value 'ZADASH',
+        package_own    type devclass,
+        parent_package type devclass,
       end of default_test_entry.
 
   private section.
@@ -290,8 +290,7 @@ class ltc_results_container implementation.
           statements_covered    = 40
           statements_uncovered  = 30 ).
 
-    "But now a new execution has happened at our class,
-    "and the test summary comes first (was zero in DB)
+    "But now a new execution has happened at our class
     data(new_test) = value zsbc_test_summary(
         entry = default_test_entry
         total_tests = 12
@@ -328,12 +327,7 @@ class ltc_results_container implementation.
           statements_uncovered = 20
           message       = 'Should keep self coverage' ).
 
-    "For everyone else is X
-    "X = my existing + delta
-    "where delta = new test entry - existing result
 
-
-    "x = 70 + ( 100 - 50 ) = 120
     then_should_have_adash_summary(
           name          = default_test_entry-package_own
           execution_guid  = self_test
@@ -345,7 +339,6 @@ class ltc_results_container implementation.
           statements_uncovered = 30
           message       = 'Should have kept parent coverage' ).
 
-    "The same for all parents of parent of parent of parent...
 
 
   endmethod.
