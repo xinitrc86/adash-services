@@ -34,6 +34,15 @@ class zcl_adash_entry_info_provider implementation.
 
   method populate_package_data.
     result = entry.
+
+    if result-type eq 'DEVC'.
+        select single
+            devclass as package_own,
+            parentcl as parent_package
+        into corresponding fields of @result
+        from tdevc
+        where devclass = @result-name.
+    else.
     select single
            program_entry~devclass as package_own,
            parent~parentcl as parent_package
@@ -42,7 +51,9 @@ class zcl_adash_entry_info_provider implementation.
         left outer join tdevc as parent
         on parent~devclass = program_entry~devclass
         where program_entry~object = @entry-type
-        and program_entry~obj_name = @entry-name.
+        and program_entry~obj_name = @entry-name
+        .
+     endif.
 
   endmethod.
 

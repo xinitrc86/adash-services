@@ -2,7 +2,7 @@ class ltc_entry_info definition
 for testing
 duration short
 risk level harmless
-inheriting from zclca_assert.
+inheriting from zcl_assert.
 
 
   private section.
@@ -83,9 +83,10 @@ class ltc_entry_info implementation.
         act = last-change_author
         msg = 'Should return last change data' ).
 
-    assert_not_initial(
-        act = last-change_id
-        msg = 'Should return last change data' ).
+*when installed locally, change id (tr) is not necessary for changes
+*    assert_not_initial(
+*        act = last-change_id
+*        msg = 'Should return last change data' ).
 
   endmethod.
 

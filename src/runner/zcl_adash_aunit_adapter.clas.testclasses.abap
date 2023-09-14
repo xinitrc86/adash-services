@@ -264,28 +264,12 @@ class ltc_aunit_result_adapter implementation.
         type = expected_type
         test_class = expected_test_class
         test_method = expected_test_method
-        package_own = expected_package
+        "package_own = expected_package package depends on installation (abapGit)
         status  = expected_status
     ]  ).
 
       fail( `Could not find expected result for ` && expected_test_class && `-` && expected_test_method ).
 
-*@TODO: improve tests to allow below assert
-*    data(expected_test_result) = value ztbc_au_tests(
-*        name = expected_name
-*        type = expected_type
-*        test_class = expected_test_class
-*        test_method = expected_test_method
-*        package_own = expected_package
-*        status  = expected_status
-*
-*    ).
-      "if above is because we don't know what will come from failure_header, etc
-*    assert_table_contains(
-*        line = expected_test_result
-*        table = t_test_method_results
-*        msg = 'Could not find expected test method result'
-*    ).
 
     endif.
 
